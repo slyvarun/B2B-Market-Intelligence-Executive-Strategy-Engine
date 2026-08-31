@@ -18,7 +18,25 @@ from module2_scoring_engine import MarketDiscoveryEngine
 from module3_content_engine import Module3ContentEngine
 from module4_feedback_engine import ClosedLoopFeedbackPipeline
 
-DB_PATH = "market_signals.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "market_signals.db")
+
+
+def sync_streamlit_secrets():
+    """Bridge Streamlit Cloud secrets to environment variables if present."""
+    try:
+        if hasattr(st, "secrets") and st.secrets:
+            for key, val in st.secrets.items():
+                if isinstance(val, (str, int, float, bool)):
+                    os.environ[str(key).upper()] = str(val)
+                elif isinstance(val, dict):
+                    for sub_key, sub_val in val.items():
+                        os.environ[f"{key}_{sub_key}".upper()] = str(sub_val)
+    except Exception:
+        pass
+
+
+sync_streamlit_secrets()
 
 
 def get_db_connection():
@@ -42,6 +60,31 @@ def load_data_from_table(query: str, params: tuple = ()) -> pd.DataFrame:
     except Exception as e:
         st.error(f"Database Query Error: {e}")
         return pd.DataFrame()
+
+
+def ensure_database_initialized():
+    """Ensure database schema exists and initial demo data is loaded if missing."""
+    if not os.path.exists(DB_PATH) or not check_table_exists("market_signals"):
+        try:
+            demo_industry = "Solar Panels"
+            target_countries = ["USA", "Japan", "South Korea", "Germany", "France", "UK"]
+            ingestor = MarketSignalIngestor(db_path=DB_PATH)
+            ingestor.collect_and_store(industry=demo_industry, target_countries=target_countries, lookback_days=60, use_mock_fallback=True)
+            
+            discovery = MarketDiscoveryEngine(db_path=DB_PATH)
+            discovery.run_discovery_pipeline(industry=demo_industry, target_countries=target_countries)
+            
+            content_engine = Module3ContentEngine(db_path=DB_PATH)
+            content_engine.run_content_pipeline(industry=demo_industry, top_count=5)
+            
+            feedback_engine = ClosedLoopFeedbackPipeline(db_path=DB_PATH)
+            feedback_engine.run_feedback_pipeline(industry=demo_industry)
+        except Exception as e:
+            st.error(f"Error auto-initializing demo database: {e}")
+
+
+ensure_database_initialized()
+
 
 
 st.set_page_config(
@@ -213,7 +256,7 @@ st.sidebar.header("⚙️ Analysis Settings")
 
 industry_input = st.sidebar.text_input(
     "Target Industry",
-    value="",
+    value="Solar Panels",
     placeholder="e.g. Solar Panels, Electric Vehicles...",
     help="Enter any industry to analyze market signals and commercial opportunities."
 )
@@ -313,6 +356,20 @@ if st.sidebar.button("🚀 Run Full Market Analysis", use_container_width=True, 
             
             st.sidebar.success("🎉 Complete market analysis executed successfully!")
             st.rerun()
+
+st.sidebar.markdown("---")
+st.sidebar.subheader("🔄 Data Management")
+if st.sidebar.button("🔄 Reset & Re-seed Demo Data", use_container_width=True):
+    with st.spinner("Resetting and re-seeding demo database..."):
+        if os.path.exists(DB_PATH):
+            try:
+                os.remove(DB_PATH)
+            except Exception:
+                pass
+        ensure_database_initialized()
+        st.sidebar.success("Database re-seeded with demo data!")
+        st.rerun()
+
 
 
 tab1, tab2, tab3, tab4 = st.tabs([

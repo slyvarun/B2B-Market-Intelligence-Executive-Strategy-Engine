@@ -63,9 +63,72 @@ python module4_feedback_engine.py
 
 ---
 
+## 🚀 Streamlit Cloud Deployment Guide
+
+This application is fully prepared for instant deployment on **Streamlit Community Cloud**, **Docker**, and Cloud hosting services (Render, Hugging Face, AWS/GCP).
+
+---
+
+### ☁️ Option 1: Deploy on Streamlit Community Cloud (Recommended)
+
+1. **Push your code to GitHub**:
+   Ensure your repository is pushed to a public or private GitHub repository.
+
+2. **Connect to Streamlit Cloud**:
+   - Go to [share.streamlit.io](https://share.streamlit.io/) and log in with your GitHub account.
+   - Click **"New App"**.
+
+3. **Configure App Settings**:
+   - **Repository**: `your-username/your-repo-name`
+   - **Branch**: `main` (or `master`)
+   - **Main file path**: `app.py` (or `datam_intelligence_poc/app.py`)
+
+4. **Configure Secrets (API Keys)**:
+   - Click **"Advanced settings..."** or go to **App Settings > Secrets** in the Streamlit Cloud dashboard.
+   - Paste your API keys in TOML format (refer to `.streamlit/secrets.toml.template`):
+     ```toml
+     NEWS_DATA_API_KEY = "your_newsdata_api_key"
+     NEWS_API_KEY = "your_newsapi_key"
+     GEMINI_API_KEY = "your_gemini_api_key"
+     GEMINI_MODEL = "gemini-3.7-flash"
+     ```
+
+5. **Deploy**:
+   - Click **"Deploy!"**. Streamlit Cloud will install dependencies from `requirements.txt` and launch `app.py`.
+   - The application automatically initializes the SQLite database schema and pre-populates demo market data on first startup!
+
+---
+
+### 🐳 Option 2: Run with Docker Container
+
+1. **Build Docker Image**:
+   ```bash
+   docker build -t b2b-market-intelligence .
+   ```
+
+2. **Run Container**:
+   ```bash
+   docker run -d -p 8501:8501 --env-file .env --name b2b-app b2b-market-intelligence
+   ```
+
+3. **Access Dashboard**:
+   Open browser at `http://localhost:8501`
+
+---
+
+### 🌐 Option 3: Deploy on Render / Heroku
+
+- **Procfile** is included in the project root:
+  ```
+  web: streamlit run app.py --server.port $PORT --server.address 0.0.0.0
+  ```
+- Set environment variables (`GEMINI_API_KEY`, `NEWS_DATA_API_KEY`, `NEWS_API_KEY`) in your Render/Heroku dashboard.
+
+---
+
 ## Environment Setup & API Keys
 
-Create a `.env` file in the project folder:
+Create a `.env` file locally or set secrets in Streamlit Cloud:
 
 ```env
 # Live Market News APIs
@@ -75,3 +138,4 @@ NEWS_API_KEY=your_newsapi_org_key
 # Gemini LLM API Key
 GEMINI_API_KEY=your_gemini_api_key
 ```
+

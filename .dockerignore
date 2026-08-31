@@ -1,9 +1,12 @@
 .env
 *.db
+.git
+.gitignore
 __pycache__/
 *.pyc
 venv/
 .venv/
 .pytest_cache/
 .streamlit/secrets.toml
-
+Dockerfile
+README.md
