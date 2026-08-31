@@ -279,7 +279,7 @@ lookback_days = st.sidebar.slider(
 st.sidebar.markdown("---")
 st.sidebar.subheader("🎯 Analysis Execution")
 
-if st.sidebar.button("1. Collect Market Signals", use_container_width=True):
+if st.sidebar.button("1. Collect Market Signals", width="stretch"):
     if not industry_input.strip():
         st.sidebar.warning("⚠️ Please enter a Target Industry above before running!")
     else:
@@ -294,7 +294,7 @@ if st.sidebar.button("1. Collect Market Signals", use_container_width=True):
             st.sidebar.success(f"Collected {res['total_collected']} market signals!")
             st.rerun()
 
-if st.sidebar.button("2. Score Market Opportunities", use_container_width=True):
+if st.sidebar.button("2. Score Market Opportunities", width="stretch"):
     if not industry_input.strip():
         st.sidebar.warning("⚠️ Please enter a Target Industry above before running!")
     else:
@@ -310,7 +310,7 @@ if st.sidebar.button("2. Score Market Opportunities", use_container_width=True):
                 st.sidebar.success(f"Scored {res['opportunities_discovered']} market opportunities!")
                 st.rerun()
 
-if st.sidebar.button("3. Generate Content Strategy", use_container_width=True):
+if st.sidebar.button("3. Generate Content Strategy", width="stretch"):
     if not industry_input.strip():
         st.sidebar.warning("⚠️ Please enter a Target Industry above before running!")
     else:
@@ -323,7 +323,7 @@ if st.sidebar.button("3. Generate Content Strategy", use_container_width=True):
                 st.sidebar.success(f"Generated {res['total_blueprints']} content blueprints!")
                 st.rerun()
 
-if st.sidebar.button("4. Analyze Business Performance", use_container_width=True):
+if st.sidebar.button("4. Analyze Business Performance", width="stretch"):
     if not industry_input.strip():
         st.sidebar.warning("⚠️ Please enter a Target Industry above before running!")
     else:
@@ -337,7 +337,7 @@ if st.sidebar.button("4. Analyze Business Performance", use_container_width=True
                 st.rerun()
 
 st.sidebar.markdown("---")
-if st.sidebar.button("🚀 Run Full Market Analysis", use_container_width=True, type="primary"):
+if st.sidebar.button("🚀 Run Full Market Analysis", width="stretch", type="primary"):
     if not industry_input.strip():
         st.sidebar.warning("⚠️ Please enter a Target Industry above before running!")
     else:
@@ -359,7 +359,7 @@ if st.sidebar.button("🚀 Run Full Market Analysis", use_container_width=True, 
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("🔄 Data Management")
-if st.sidebar.button("🔄 Reset & Re-seed Demo Data", use_container_width=True):
+if st.sidebar.button("🔄 Reset & Re-seed Demo Data", width="stretch"):
     with st.spinner("Resetting and re-seeding demo database..."):
         if os.path.exists(DB_PATH):
             try:
@@ -418,7 +418,7 @@ with tab1:
             st.markdown("---")
             st.write(f"**Market Signals Detail Table for '{industry_input}'**")
             display_cols = ["signal_id", "industry", "country", "signal_type", "title", "source", "date", "quantitative_metric"]
-            st.dataframe(df_signals[display_cols], use_container_width=True)
+            st.dataframe(df_signals[display_cols], width="stretch")
 
 
 with tab2:
@@ -465,7 +465,7 @@ with tab2:
             st.write(f"**Full Opportunity Discovery Matrix**")
             st.dataframe(
                 df_opps[["opportunity_score", "keyword", "target_country", "commercial_intent", "recommended_report_title", "why_now_rationale"]],
-                use_container_width=True
+                width="stretch"
             )
 
 
@@ -576,7 +576,7 @@ with tab4:
             ]].copy()
             
             display_fb["report_sales_revenue"] = display_fb["report_sales_revenue"].apply(lambda x: f"${x:,.2f}")
-            st.dataframe(display_fb, use_container_width=True)
+            st.dataframe(display_fb, width="stretch")
 
             st.markdown("---")
             st.subheader("🤖 Algorithm Scoring Weight Adjustments")
