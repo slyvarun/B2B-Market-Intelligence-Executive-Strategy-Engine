@@ -218,8 +218,32 @@ sequenceDiagram
 
 ---
 
-## 3. Production Deployment Architecture
+## 3. Production Deployment Architecture & Step-by-Step Method
 
-- **Hosting Platform**: Streamlit Community Cloud (with Docker & Render fallback support via included `Dockerfile` and `Procfile`).
-- **Zero-Config Database**: Embedded SQLite database (`market_signals.db`) with automatic schema initialization (`ensure_database_initialized()`) on first cloud startup.
-- **Secrets Management**: Secrets bridge (`sync_streamlit_secrets()`) automatically forwards Streamlit Cloud secrets to standard environment variables.
+**Live Public Application URL**: [https://b2b-market-intelligence-executive-strategy.streamlit.app/](https://b2b-market-intelligence-executive-strategy.streamlit.app/)
+
+### Deployment Methodology & Infrastructure Setup
+
+The application was prepared and deployed to **Streamlit Community Cloud** using the following step-by-step production workflow:
+
+1. **GitHub Version Control & Repository Setup**:
+   - Pushed all application source code, module engines, and configuration assets to GitHub: [`slyvarun/B2B-Market-Intelligence-Executive-Strategy-Engine`](https://github.com/slyvarun/B2B-Market-Intelligence-Executive-Strategy-Engine).
+   - Structured `.gitignore` to safely protect `.env` secrets and `.db` binary files from public exposure.
+
+2. **Streamlit Environment Configuration (`.streamlit/`)**:
+   - Configured custom slate UI styling in `.streamlit/config.toml` (`#2563EB` primary color, `#F8FAFC` background) for a polished executive presentation.
+   - Configured headless server mode and disabled telemetry data gathering.
+
+3. **Fast Dependency Management (`requirements.txt`)**:
+   - Configured package dependencies (`streamlit`, `pandas`, `google-genai`, `requests`, `feedparser`, `python-dotenv`) with flexible version bounds to allow `uv` fast-wheel resolution in ~15 seconds on cloud containers.
+
+4. **Encrypted Secrets Management**:
+   - Stored API credentials (`GEMINI_API_KEY`, `NEWS_DATA_API_KEY`, `NEWS_API_KEY`) securely inside Streamlit Cloud Dashboard **Secrets** (TOML format).
+   - In `app.py`, implemented `sync_streamlit_secrets()` to automatically bridge Streamlit Cloud Secrets into Python's `os.environ` at runtime, enabling all modules to access API keys transparently.
+
+5. **Zero-Config Database Auto-Initialization**:
+   - Implemented `ensure_database_initialized()` in `app.py`. When deployed to a fresh, stateless cloud container, the application automatically creates the SQLite database schema and seeds initial market signals on first launch, ensuring live visual dashboards render immediately.
+
+6. **Containerization & Hosting Fallbacks**:
+   - Included a multi-stage `Dockerfile` (Python 3.11-slim) and `Procfile` to support alternative deployments on Docker, Kubernetes, AWS ECS, or Render if required.
+
